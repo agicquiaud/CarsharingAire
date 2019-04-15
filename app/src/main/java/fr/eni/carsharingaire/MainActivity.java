@@ -6,6 +6,7 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
@@ -17,16 +18,25 @@ import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.ItemizedIconOverlay;
+import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
+import org.osmdroid.views.overlay.Overlay;
+import org.osmdroid.views.overlay.OverlayItem;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
 
 import fr.eni.carsharingaire.pojo.Parkings;
+import fr.eni.carsharingaire.pojo.Records;
 
 public class MainActivity extends AppCompatActivity {
     MapView mp = null;
+    List<Records> parkings = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mp = findViewById(R.id.mapView);
         mp.setTileSource(TileSourceFactory.MAPNIK);
+        ActivityCompat.requestPermissions(this, new String[]{"android.permission.WRITE_EXTERNAL_STORAGE"},21);
         IMapController mapController = mp.getController();
         mapController.setZoom(17);
         GeoPoint startPoint = new GeoPoint(47.2172500, -1.5533600);
@@ -42,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         mp.setVerticalMapRepetitionEnabled(false);
         mp.setMinZoomLevel(3.0);
         mp.setScrollableAreaLimitLatitude(85,-85,0 );
-
+        parkings = new ArrayList<>();
 
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -86,7 +97,10 @@ public class MainActivity extends AppCompatActivity {
                 String json = stringBuffer.toString();
                 Gson gson = new Gson();
 
-                Parkings parkings = gson.fromJson(json, Parkings.class);
+                Parkings parking = gson.fromJson(json, Parkings.class);
+                for (Records park:parking.getRecords()) {
+                    parkings.add(park);
+                }
 
                 //List<Parkings> listParking = gson.fromJson(json, new TypeToken<List<Parkings>>(){}.getType());
 
@@ -104,7 +118,28 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String s)
         {
-            //etMotTransforme.setText(s);
+            List<OverlayItem> overlayItems = new ArrayList<OverlayItem>();
+            for (Records record:parkings) {
+                overlayItems.add(new OverlayItem(record.getFields().getNom_complet(), record.getFields().getCapacite_voiture(), new GeoPoint(Double.parseDouble((record.getGeometry().getCoordinates())[1]), Double.parseDouble((record.getGeometry().getCoordinates())[0]))));
+            }
+            ItemizedOverlayWithFocus<OverlayItem> mOverlay = new ItemizedOverlayWithFocus<OverlayItem>(getApplicationContext(),overlayItems,
+                    new ItemizedIconOverlay.OnItemGestureListener()
+                    {
+
+                        @Override
+                        public boolean onItemSingleTapUp(int index, Object item) {
+                            Log.i("SIMPLECLIC","Simple clic");
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onItemLongPress(int index, Object item) {
+                            Log.i("LONGCLIC","Long clic");
+                            return false;
+                        }
+                    });
+            mOverlay.setFocusItemsOnTap(true);
+            mp.getOverlays().add(mOverlay);
         }
     }
 }
