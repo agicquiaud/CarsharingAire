@@ -1,14 +1,21 @@
 package fr.eni.carsharingaire;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -37,6 +44,8 @@ import fr.eni.carsharingaire.pojo.Records;
 public class MainActivity extends AppCompatActivity {
     MapView mp = null;
     List<Records> parkings = null;
+    private ActionBar toolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +77,46 @@ public class MainActivity extends AppCompatActivity {
         {
             Toast.makeText(MainActivity.this, "Pas internet", Toast.LENGTH_SHORT).show();
         }
+
+        //mise en place du menu
+        toolbar = getSupportActionBar();
+
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        // load the store fragment by default
+        toolbar.setTitle("Carte");
+        loadFragment(new MapFragment());
+    }
+
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            Fragment fragment;
+            switch (item.getItemId()) {
+                case R.id.navigation_list:
+                    toolbar.setTitle("Parkings");
+                    fragment = new ListFragment();
+                    loadFragment(fragment);
+                    return true;
+                case R.id.navigation_map:
+                    toolbar.setTitle("Carte");
+                    fragment = new MapFragment();
+                    loadFragment(fragment);
+                    return true;
+            }
+            return false;
+        }
+    };
+
+    private void loadFragment(Fragment fragment) {
+        // load fragment
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.frame_container, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 
     private class AccesRessourceTask extends AsyncTask<String, Void, String>
