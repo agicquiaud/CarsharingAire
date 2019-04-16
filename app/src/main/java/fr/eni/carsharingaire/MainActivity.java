@@ -88,8 +88,7 @@ public class MainActivity extends AppCompatActivity {
             switch (item.getItemId()) {
                 case R.id.navigation_list:
                     toolbar.setTitle("Parkings");
-                    fragment = new ListFragment();
-                    loadFragment(fragment);
+                    loadFragment(ListFragment.newInstance(parkings));
                     return true;
                 case R.id.navigation_map:
                     toolbar.setTitle("Carte");
