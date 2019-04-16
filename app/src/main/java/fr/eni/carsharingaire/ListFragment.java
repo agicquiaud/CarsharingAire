@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -29,12 +30,14 @@ public class ListFragment extends Fragment {
     private RecyclerView recyclerView;
     private List<Records> recordsList;
     private ListAdapter mAdapter;
+    static private List<Records> list = null;
 
     public ListFragment() {
         // Required empty public constructor
     }
 
-    public static ListFragment newInstance(String param1, String param2) {
+    public static ListFragment newInstance(List<Records> parkings) {
+        list = parkings;
         ListFragment fragment = new ListFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
@@ -56,12 +59,11 @@ public class ListFragment extends Fragment {
         recordsList = new ArrayList<>();
         mAdapter = new ListAdapter(getActivity(), recordsList);
 
-        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 3);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.addItemDecoration(new GridSpacingItemDecoration(2, dpToPx(8), true));
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        //recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
-        recyclerView.setNestedScrollingEnabled(false);
+        //recyclerView.setNestedScrollingEnabled(false);
 
         fetchStoreItems();
 
@@ -69,69 +71,33 @@ public class ListFragment extends Fragment {
     }
 
     private void fetchStoreItems() {
-        List<Records> items = new ArrayList<Records>();
+        //List<Records> items = new ArrayList<Records>();
 
         recordsList.clear();
-        recordsList.addAll(items);
+        recordsList.addAll(list);
 
         // refreshing recycler view
         mAdapter.notifyDataSetChanged();
     }
 
-    public class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
 
-        private int spanCount;
-        private int spacing;
-        private boolean includeEdge;
-
-        public GridSpacingItemDecoration(int spanCount, int spacing, boolean includeEdge) {
-            this.spanCount = spanCount;
-            this.spacing = spacing;
-            this.includeEdge = includeEdge;
-        }
-
-        @Override
-        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-            int position = parent.getChildAdapterPosition(view); // item position
-            int column = position % spanCount; // item column
-
-            if (includeEdge) {
-                outRect.left = spacing - column * spacing / spanCount; // spacing - column * ((1f / spanCount) * spacing)
-                outRect.right = (column + 1) * spacing / spanCount; // (column + 1) * ((1f / spanCount) * spacing)
-
-                if (position < spanCount) { // top edge
-                    outRect.top = spacing;
-                }
-                outRect.bottom = spacing; // item bottom
-            } else {
-                outRect.left = column * spacing / spanCount; // column * ((1f / spanCount) * spacing)
-                outRect.right = spacing - (column + 1) * spacing / spanCount; // spacing - (column + 1) * ((1f /    spanCount) * spacing)
-                if (position >= spanCount) {
-                    outRect.top = spacing; // item top
-                }
-            }
-        }
-    }
-
-    /**
-     * Converting dp to pixel
-     */
-    private int dpToPx(int dp) {
-        Resources r = getResources();
-        return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics()));
-    }
 
     class ListAdapter extends RecyclerView.Adapter<ListAdapter.MyViewHolder> {
         private Context context;
         private List<Records> recordsList;
 
         public class MyViewHolder extends RecyclerView.ViewHolder {
-            public TextView name, price;
-            public ImageView thumbnail;
+            public TextView name;
+            public TextView address;
+            public TextView description;
+            public TextView site;
 
             public MyViewHolder(View view) {
                 super(view);
                 name = view.findViewById(R.id.title);
+                address = view.findViewById(R.id.address);
+                description = view.findViewById(R.id.description);
+                site = view.findViewById(R.id.site);
             }
         }
 
@@ -152,8 +118,10 @@ public class ListFragment extends Fragment {
         @Override
         public void onBindViewHolder(MyViewHolder holder, final int position) {
             final Records record = recordsList.get(position);
-            holder.name.setText(record.getDatasetid());
-
+            holder.name.setText(record.getFields().getNom_complet());
+            holder.address.setText(record.getFields().getAdresse()+' '+record.getFields().getCode_postal()+' '+record.getFields().getCommune());
+            holder.description.setText(record.getFields().getPresentation());
+            holder.site.setText(record.getFields().getSite_web());
         }
 
         @Override

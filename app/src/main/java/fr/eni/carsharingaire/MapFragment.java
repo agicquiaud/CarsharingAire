@@ -40,7 +40,7 @@ public class MapFragment extends Fragment {
     private static final String TAG = ListFragment.class.getSimpleName();
 
     MapView mp = null;
-    static List<Records> list = null;
+    static private List<Records> list = null;
 
     public MapFragment() {
         // Required empty public constructor
