@@ -2,6 +2,8 @@ package fr.eni.carsharingaire.pojo;
 
 public class Geometry {
 
+    private int id;
+
     private String[] coordinates;
 
     private String type;

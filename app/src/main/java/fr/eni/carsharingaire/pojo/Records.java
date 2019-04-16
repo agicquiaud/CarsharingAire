@@ -1,13 +1,18 @@
 package fr.eni.carsharingaire.pojo;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+import android.arch.persistence.room.Relation;
+
+@Entity(tableName = "parking")
 public class Records {
 
+    @PrimaryKey()
     private String recordid;
 
     private String datasetid;
-
     private Geometry geometry;
-
     private Fields fields;
 
     private String record_timestamp;

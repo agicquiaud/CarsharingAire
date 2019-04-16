@@ -1,6 +1,8 @@
 package fr.eni.carsharingaire;
 
+import android.arch.persistence.room.Room;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -12,7 +14,12 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
@@ -29,7 +36,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
 
 import fr.eni.carsharingaire.pojo.Parkings;
 import fr.eni.carsharingaire.pojo.Records;
@@ -95,10 +101,13 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 String json = stringBuffer.toString();
+                JSONObject resultat = new JSONObject(json);
+                JSONArray resultatRecords = resultat.getJSONArray("records");
                 Gson gson = new Gson();
 
-                Parkings parking = gson.fromJson(json, Parkings.class);
-                for (Records park:parking.getRecords()) {
+
+                List<Records> parking = gson.fromJson(resultatRecords.toString(), new TypeToken<List<Records>>(){}.getType());
+                for (Records park:parking) {
                     parkings.add(park);
                 }
 
@@ -120,7 +129,9 @@ public class MainActivity extends AppCompatActivity {
         {
             List<OverlayItem> overlayItems = new ArrayList<OverlayItem>();
             for (Records record:parkings) {
-                overlayItems.add(new OverlayItem(record.getFields().getNom_complet(), record.getFields().getCapacite_voiture(), new GeoPoint(Double.parseDouble((record.getGeometry().getCoordinates())[1]), Double.parseDouble((record.getGeometry().getCoordinates())[0]))));
+                OverlayItem over = new OverlayItem(record.getFields().getNom_complet(), record.getFields().getCapacite_voiture(), new GeoPoint(Double.parseDouble((record.getGeometry().getCoordinates())[1]), Double.parseDouble((record.getGeometry().getCoordinates())[0])));
+                Drawable marker = getResources().getDrawable(R.drawable.ic_place_black_24dp);
+                over.setMarker(marker);
             }
             ItemizedOverlayWithFocus<OverlayItem> mOverlay = new ItemizedOverlayWithFocus<OverlayItem>(getApplicationContext(),overlayItems,
                     new ItemizedIconOverlay.OnItemGestureListener()

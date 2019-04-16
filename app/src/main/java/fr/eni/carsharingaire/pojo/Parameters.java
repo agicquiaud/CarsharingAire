@@ -2,6 +2,8 @@ package fr.eni.carsharingaire.pojo;
 
 public class Parameters {
 
+    private int id;
+
     private String timezone;
 
     private String format;
