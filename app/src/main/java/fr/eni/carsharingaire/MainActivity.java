@@ -42,7 +42,7 @@ import fr.eni.carsharingaire.pojo.Parkings;
 import fr.eni.carsharingaire.pojo.Records;
 
 public class MainActivity extends AppCompatActivity {
-    MapView mp = null;
+   //MapView mp = null;
     List<Records> parkings = null;
     private ActionBar toolbar;
 
@@ -52,16 +52,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
         setContentView(R.layout.activity_main);
-        mp = findViewById(R.id.mapView);
-        mp.setTileSource(TileSourceFactory.MAPNIK);
+
         ActivityCompat.requestPermissions(this, new String[]{"android.permission.WRITE_EXTERNAL_STORAGE"},21);
-        IMapController mapController = mp.getController();
-        mapController.setZoom(17);
-        GeoPoint startPoint = new GeoPoint(47.2172500, -1.5533600);
-        mapController.setCenter(startPoint);
-        mp.setVerticalMapRepetitionEnabled(false);
-        mp.setMinZoomLevel(3.0);
-        mp.setScrollableAreaLimitLatitude(85,-85,0 );
+
         parkings = new ArrayList<>();
 
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -84,9 +77,6 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        // load the store fragment by default
-        toolbar.setTitle("Carte");
-        loadFragment(new MapFragment());
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -103,8 +93,7 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 case R.id.navigation_map:
                     toolbar.setTitle("Carte");
-                    fragment = new MapFragment();
-                    loadFragment(fragment);
+                    loadFragment(MapFragment.newInstance(parkings));
                     return true;
             }
             return false;
@@ -167,28 +156,10 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String s)
         {
-            List<OverlayItem> overlayItems = new ArrayList<OverlayItem>();
-            for (Records record:parkings) {
-                overlayItems.add(new OverlayItem(record.getFields().getNom_complet(), record.getFields().getCapacite_voiture(), new GeoPoint(Double.parseDouble((record.getGeometry().getCoordinates())[1]), Double.parseDouble((record.getGeometry().getCoordinates())[0]))));
-            }
-            ItemizedOverlayWithFocus<OverlayItem> mOverlay = new ItemizedOverlayWithFocus<OverlayItem>(getApplicationContext(),overlayItems,
-                    new ItemizedIconOverlay.OnItemGestureListener()
-                    {
+            // load the store fragment by default
+            toolbar.setTitle("Carte");
+            loadFragment(MapFragment.newInstance(parkings));
 
-                        @Override
-                        public boolean onItemSingleTapUp(int index, Object item) {
-                            Log.i("SIMPLECLIC","Simple clic");
-                            return false;
-                        }
-
-                        @Override
-                        public boolean onItemLongPress(int index, Object item) {
-                            Log.i("LONGCLIC","Long clic");
-                            return false;
-                        }
-                    });
-            mOverlay.setFocusItemsOnTap(true);
-            mp.getOverlays().add(mOverlay);
         }
     }
 }

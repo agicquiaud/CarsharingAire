@@ -24,9 +24,5 @@
         app:itemTextColor="@android:color/white"
         app:menu="@menu/navigation" />
 
-    <org.osmdroid.views.MapView android:id="@+id/mapView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"></org.osmdroid.views.MapView>
-
 </android.support.design.widget.CoordinatorLayout>
 
