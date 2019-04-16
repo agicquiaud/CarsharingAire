@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="5dp"
     android:clickable="true"
-    app:cardBackgroundColor="@android:color/black"
+    app:cardBackgroundColor="@color/colorPrimaryDark"
     app:cardElevation="2dp">
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -18,7 +18,8 @@
                     android:id="@+id/title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@android:color/white"/>
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold"/>
 
                 <TextView
                     android:id="@+id/address"
@@ -30,13 +31,15 @@
                     android:id="@+id/site"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@android:color/white"/>
+                    android:textColor="@android:color/white"
+                    android:autoLink="web"/>
 
                 <TextView
                     android:id="@+id/description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@android:color/white"/>
+                    android:textColor="@android:color/white"
+                    android:textStyle="italic"/>
 
         </LinearLayout>
 
