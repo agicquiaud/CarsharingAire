@@ -2,10 +2,10 @@ package fr.eni.carsharingaire;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
@@ -16,6 +16,7 @@ import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import fr.eni.carsharingaire.pojo.Parking;
 
@@ -25,6 +26,7 @@ public class MapFragment extends Fragment {
 
     MapView mp = null;
     static private List<Parking> list = null;
+    static private Parking center = null;
 
     public MapFragment() {
         // Required empty public constructor
@@ -32,6 +34,15 @@ public class MapFragment extends Fragment {
 
     public static MapFragment newInstance(List<Parking> parkings) {
         list = parkings;
+        MapFragment fragment = new MapFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static MapFragment newInstance(List<Parking> parkings, Parking parking) {
+        list = parkings;
+        center = parking;
         MapFragment fragment = new MapFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
@@ -55,7 +66,12 @@ public class MapFragment extends Fragment {
 
         final IMapController mapController = mp.getController();
         mapController.setZoom(13.0);
-        GeoPoint startPoint = new GeoPoint(47.2172500, -1.5533600);
+        GeoPoint startPoint = null;
+        if(center == null){
+            startPoint = new GeoPoint(47.2172500, -1.5533600);
+        } else {
+            startPoint = new GeoPoint(center.getLatitude(), center.getLongitude());
+        }
         mapController.setCenter(startPoint);
         mp.setVerticalMapRepetitionEnabled(false);
         mp.setMinZoomLevel(3.0);
