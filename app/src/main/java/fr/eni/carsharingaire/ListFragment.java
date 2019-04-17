@@ -5,6 +5,9 @@ import android.content.res.Resources;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -31,6 +34,7 @@ public class ListFragment extends Fragment {
     private List<Records> recordsList;
     private ListAdapter mAdapter;
     static private List<Records> list = null;
+    static private ActionBar toolbar;
 
     public ListFragment() {
         // Required empty public constructor
@@ -55,6 +59,8 @@ public class ListFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_list, container, false);
 
+        toolbar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+
         recyclerView = view.findViewById(R.id.recycler_view);
         recordsList = new ArrayList<>();
         mAdapter = new ListAdapter(getActivity(), recordsList);
@@ -68,6 +74,14 @@ public class ListFragment extends Fragment {
         fetchStoreItems();
 
         return view;
+    }
+
+    private void loadFragment(Fragment fragment) {
+        // load fragment
+        FragmentTransaction transaction = ((AppCompatActivity)getActivity()).getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.frame_container, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 
     private void fetchStoreItems() {
@@ -98,6 +112,13 @@ public class ListFragment extends Fragment {
                 address = view.findViewById(R.id.address);
                 description = view.findViewById(R.id.description);
                 site = view.findViewById(R.id.site);
+
+                view.setOnClickListener(new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        toolbar.setTitle("Carte");
+                        loadFragment(MapFragment.newInstance(list));
+                    }
+                });
             }
         }
 

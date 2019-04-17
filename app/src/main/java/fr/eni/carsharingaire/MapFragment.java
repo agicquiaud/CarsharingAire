@@ -41,12 +41,22 @@ public class MapFragment extends Fragment {
 
     MapView mp = null;
     static private List<Records> list = null;
+    static private String center_latitude = null;
+    static private String center_longitude = null;
 
     public MapFragment() {
         // Required empty public constructor
     }
 
     public static MapFragment newInstance(List<Records> parkings) {
+        list = parkings;
+        MapFragment fragment = new MapFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static MapFragment newInstance(List<Records> parkings, String latitude, String longitude) {
         list = parkings;
         MapFragment fragment = new MapFragment();
         Bundle args = new Bundle();
