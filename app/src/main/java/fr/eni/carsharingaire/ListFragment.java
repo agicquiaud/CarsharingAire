@@ -12,10 +12,15 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -64,7 +69,14 @@ public class ListFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.recycler_view);
         parkingsList = new ArrayList<>();
-        mAdapter = new ListAdapter(getActivity(), parkingsList);
+        mAdapter = new ListAdapter(getActivity(), parkingsList, new ListAdapter.OnClickAireListener() {
+            @Override
+            public void onAireClicked(List<Parking> listParking, Parking park) {
+                ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Carte");
+                loadFragment(MapFragment.newInstance(parkingsList, park));
+
+            }
+        });
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);
@@ -73,6 +85,29 @@ public class ListFragment extends Fragment {
         //recyclerView.setNestedScrollingEnabled(false);
 
         fetchStoreItems();
+
+        EditText inputSearch = (EditText) view.findViewById(R.id.search_box);
+
+        inputSearch.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
+                // When user changed the Text
+                mAdapter.getFilter().filter(cs);
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
+                                          int arg3) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable arg0) {
+                // TODO Auto-generated method stub
+            }
+        });
 
         return view;
     }
@@ -97,61 +132,6 @@ public class ListFragment extends Fragment {
 
 
 
-    class ListAdapter extends RecyclerView.Adapter<ListAdapter.MyViewHolder> {
-        private Context context;
-        private List<Parking> parkingsList;
 
-        public class MyViewHolder extends RecyclerView.ViewHolder {
-            public TextView name;
-            public TextView address;
-            public TextView description;
-            public TextView site;
-
-            public MyViewHolder(View view) {
-                super(view);
-                name = view.findViewById(R.id.title);
-                address = view.findViewById(R.id.address);
-                description = view.findViewById(R.id.description);
-                site = view.findViewById(R.id.site);
-
-                view.setOnClickListener(new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        toolbar.setTitle("Carte");
-                        int pos = getAdapterPosition();
-                        Parking parking = parkingsList.get(pos);
-                        loadFragment(MapFragment.newInstance(parkingsList, parking));
-                    }
-                });
-            }
-        }
-
-
-        public ListAdapter(Context context, List<Parking> parkingsList) {
-            this.context = context;
-            this.parkingsList = parkingsList;
-        }
-
-        @Override
-        public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View itemView = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.list_item_row, parent, false);
-
-            return new MyViewHolder(itemView);
-        }
-
-        @Override
-        public void onBindViewHolder(MyViewHolder holder, final int position) {
-            final Parking parking = parkingsList.get(position);
-            holder.name.setText(parking.getNom());
-            holder.address.setText(parking.getAdresse()+' '+parking.getCodePostale()+' '+parking.getCommune());
-            holder.description.setText(parking.getPresentation());
-            holder.site.setText(parking.getSiteWeb());
-        }
-
-        @Override
-        public int getItemCount() {
-            return parkingsList.size();
-        }
-    }
 
 }
