@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.eni.carsharingaire.pojo.Parking;
+import fr.eni.carsharingaire.pojo.Records;
 
 
 public class MapFragment extends Fragment {
@@ -42,7 +43,7 @@ public class MapFragment extends Fragment {
         return fragment;
     }
 
-    public static MapFragment newInstance(List<Records> parkings, String latitude, String longitude) {
+    public static MapFragment newInstance(List<Parking> parkings, String latitude, String longitude) {
         list = parkings;
         MapFragment fragment = new MapFragment();
         Bundle args = new Bundle();
