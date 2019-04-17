@@ -1,26 +1,23 @@
 package fr.eni.carsharingaire;
 
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.ItemizedIconOverlay;
-import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
-import org.osmdroid.views.overlay.OverlayItem;
+import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import fr.eni.carsharingaire.pojo.Parking;
-import fr.eni.carsharingaire.pojo.Records;
 
 
 public class MapFragment extends Fragment {
@@ -56,41 +53,84 @@ public class MapFragment extends Fragment {
         mp = view.findViewById(R.id.mapView);
         mp.setTileSource(TileSourceFactory.MAPNIK);
 
-        IMapController mapController = mp.getController();
-        mapController.setZoom(17);
+        final IMapController mapController = mp.getController();
+        mapController.setZoom(13.0);
         GeoPoint startPoint = new GeoPoint(47.2172500, -1.5533600);
         mapController.setCenter(startPoint);
         mp.setVerticalMapRepetitionEnabled(false);
         mp.setMinZoomLevel(3.0);
         mp.setScrollableAreaLimitLatitude(85,-85,0 );
 
-        List<OverlayItem> overlayItems = new ArrayList<OverlayItem>();
+        final List<Marker> overlayItems = new ArrayList<Marker>();
         for (Parking parking:list) {
-            OverlayItem over = new OverlayItem(parking.getNom(), String.valueOf(parking.getCapaciteVoiture()), new GeoPoint(parking.getLatitude(), parking.getLongitude()));
-            Drawable marker = getResources().getDrawable(R.drawable.ic_place_black_24dp);
-            over.setMarker(marker);
-            overlayItems.add(over);
+
+            Marker marker1 = new Marker(mp);
+            marker1.setPosition(new GeoPoint(parking.getLatitude(), parking.getLongitude()));
+            marker1.setIcon(getContext().getDrawable(R.drawable.ic_place_black_24dp));
+            marker1.setTitle(parking.getNom());
+            marker1.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(Marker marker, MapView mapView) {
+                    hideMarker(overlayItems);
+                    marker.setVisible(true);
+                    marker.setInfoWindow(new MarkerInfoWindow(R.layout.bonuspack_bubble,mp));
+                    marker.showInfoWindow();
+                    return false;
+                }
+            });
+            overlayItems.add(marker1);
+
         }
-        ItemizedOverlayWithFocus<OverlayItem> mOverlay = new ItemizedOverlayWithFocus<OverlayItem>(view.getContext(),overlayItems,
-                new ItemizedIconOverlay.OnItemGestureListener()
-                {
+        mp.getOverlays().addAll(overlayItems);
 
-                    @Override
-                    public boolean onItemSingleTapUp(int index, Object item) {
-                        Log.i("SIMPLECLIC","Simple clic");
-                        return false;
-                    }
+        /*
+        List<IGeoPoint> points = new ArrayList<>();
+        for (int i = 0; i < 10000; i++) {
+            points.add(new LabelledGeoPoint(37 + Math.random() * 5, -8 + Math.random() * 5
+                    , "Point #" + i));
+        }
 
-                    @Override
-                    public boolean onItemLongPress(int index, Object item) {
-                        Log.i("LONGCLIC","Long clic");
-                        return false;
-                    }
-                });
-        mOverlay.setFocusItemsOnTap(true);
-        mp.getOverlays().add(mOverlay);
+        // wrap them in a theme
+        SimplePointTheme pt = new SimplePointTheme(points, true);
+
+        // create label style
+        Paint textStyle = new Paint();
+        textStyle.setStyle(Paint.Style.FILL);
+        textStyle.setColor(Color.parseColor("#0000ff"));
+        textStyle.setTextAlign(Paint.Align.CENTER);
+        textStyle.setTextSize(24);
+
+        // set some visual options for the overlay
+        // we use here MAXIMUM_OPTIMIZATION algorithm, which works well with >100k points
+        SimpleFastPointOverlayOptions opt = SimpleFastPointOverlayOptions.getDefaultStyle()
+                .setAlgorithm(SimpleFastPointOverlayOptions.RenderingAlgorithm.MAXIMUM_OPTIMIZATION)
+                .setRadius(7).setIsClickable(true).setCellSize(15).setTextStyle(textStyle);
+
+        // create the overlay with the theme
+        final SimpleFastPointOverlay sfpo = new SimpleFastPointOverlay(pt, opt);
+
+        // onClick callback
+        sfpo.setOnClickListener(new SimpleFastPointOverlay.OnClickListener() {
+            @Override
+            public void onClick(SimpleFastPointOverlay.PointAdapter points, Integer point) {
+                Toast.makeText(mp.getContext()
+                        , "You clicked " + ((LabelledGeoPoint) points.get(point)).getLabel()
+                        , Toast.LENGTH_SHORT).show();
+
+
+            }
+        });
+
+        // add overlay
+        mp.getOverlays().add(sfpo);*/
 
         return view;
+    }
+
+    public void hideMarker(List<Marker> listMarker){
+        for (Marker marker:listMarker) {
+            marker.getInfoWindow().close();
+        }
     }
 
 

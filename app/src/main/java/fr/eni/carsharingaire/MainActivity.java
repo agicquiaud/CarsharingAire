@@ -35,7 +35,6 @@ import java.util.List;
 
 
 import fr.eni.carsharingaire.pojo.Parking;
-import fr.eni.carsharingaire.pojo.Parkings;
 import fr.eni.carsharingaire.pojo.Records;
 
 public class MainActivity extends AppCompatActivity {
@@ -148,8 +147,6 @@ public class MainActivity extends AppCompatActivity {
                             park.getFields().getSite_web());
                     parkings.add(parking);
                 }
-
-                //List<Parkings> listParking = gson.fromJson(json, new TypeToken<List<Parkings>>(){}.getType());
 
                 connection.disconnect();
             }
