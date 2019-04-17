@@ -20,21 +20,11 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
-import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.ItemizedIconOverlay;
-import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
-import org.osmdroid.views.overlay.Overlay;
-import org.osmdroid.views.overlay.OverlayItem;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -44,12 +34,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+import fr.eni.carsharingaire.pojo.Parking;
 import fr.eni.carsharingaire.pojo.Parkings;
 import fr.eni.carsharingaire.pojo.Records;
 
 public class MainActivity extends AppCompatActivity {
    //MapView mp = null;
-    List<Records> parkings = null;
+    List<Parking> parkings = null;
     private ActionBar toolbar;
 
     @Override
@@ -78,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         //mise en place du menu
         toolbar = getSupportActionBar();
 
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
     }
@@ -116,8 +107,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(String... strings)
         {
-            HttpURLConnection httpUrlConnection = null;
-
             StringBuffer stringBuffer = new StringBuffer();
 
             try {
@@ -141,9 +130,23 @@ public class MainActivity extends AppCompatActivity {
                 Gson gson = new Gson();
 
 
-                List<Records> parking = gson.fromJson(resultatRecords.toString(), new TypeToken<List<Records>>(){}.getType());
-                for (Records park:parking) {
-                    parkings.add(park);
+                List<Records> records = gson.fromJson(resultatRecords.toString(), new TypeToken<List<Records>>(){}.getType());
+                for (Records park:records) {
+                    Parking parking = new Parking(park.getFields().getAdresse(),
+                            Integer.parseInt(park.getFields().getCapacite_voiture()),
+                            park.getFields().getCode_postal(),
+                            park.getFields().getCommune(),
+                            park.getFields().getConditions_d_acces(),
+                            park.getFields().getExploitant(),
+                            Double.parseDouble((park.getFields().getLocation())[0]),
+                            Double.parseDouble((park.getFields().getLocation())[1]),
+                            park.getFields().getNom_complet(),
+                            park.getFields().getPresentation(),
+                            Boolean.parseBoolean(park.getFields().getService_velo()),
+                            Boolean.parseBoolean(park.getFields().getStationnement_velo()),
+                            Boolean.parseBoolean(park.getFields().getStationnement_velo_securise()),
+                            park.getFields().getSite_web());
+                    parkings.add(parking);
                 }
 
                 //List<Parkings> listParking = gson.fromJson(json, new TypeToken<List<Parkings>>(){}.getType());
@@ -165,30 +168,6 @@ public class MainActivity extends AppCompatActivity {
             // load the store fragment by default
             toolbar.setTitle("Carte");
             loadFragment(MapFragment.newInstance(parkings));
-            List<OverlayItem> overlayItems = new ArrayList<OverlayItem>();
-            for (Records record:parkings) {
-                OverlayItem over = new OverlayItem(record.getFields().getNom_complet(), record.getFields().getCapacite_voiture(), new GeoPoint(Double.parseDouble((record.getGeometry().getCoordinates())[1]), Double.parseDouble((record.getGeometry().getCoordinates())[0])));
-                Drawable marker = getResources().getDrawable(R.drawable.ic_place_black_24dp);
-                over.setMarker(marker);
-            }
-            ItemizedOverlayWithFocus<OverlayItem> mOverlay = new ItemizedOverlayWithFocus<OverlayItem>(getApplicationContext(),overlayItems,
-                    new ItemizedIconOverlay.OnItemGestureListener()
-                    {
-
-                        @Override
-                        public boolean onItemSingleTapUp(int index, Object item) {
-                            Log.i("SIMPLECLIC","Simple clic");
-                            return false;
-                        }
-
-                        @Override
-                        public boolean onItemLongPress(int index, Object item) {
-                            Log.i("LONGCLIC","Long clic");
-                            return false;
-                        }
-                    });
-            mOverlay.setFocusItemsOnTap(true);
-            mp.getOverlays().add(mOverlay);
         }
     }
 }

@@ -14,11 +14,12 @@ public class Parking {
     private Boolean serviceVelo;
     private Boolean stationnementVelo;
     private Boolean stationnementVeloSecurisee;
+    private String siteWeb;
 
     public Parking() {
     }
 
-    public Parking(String adresse, int capaciteVoiture, String codePostale, String commune, String conditionAcces, String exploitant, Double latitude, Double longitude, String nom, String presentation, Boolean serviceVelo, Boolean stationnementVelo, Boolean stationnementVeloSecurisee) {
+    public Parking(String adresse, int capaciteVoiture, String codePostale, String commune, String conditionAcces, String exploitant, Double latitude, Double longitude, String nom, String presentation, Boolean serviceVelo, Boolean stationnementVelo, Boolean stationnementVeloSecurisee, String siteWeb) {
         this.adresse = adresse;
         this.capaciteVoiture = capaciteVoiture;
         this.codePostale = codePostale;
@@ -32,6 +33,7 @@ public class Parking {
         this.serviceVelo = serviceVelo;
         this.stationnementVelo = stationnementVelo;
         this.stationnementVeloSecurisee = stationnementVeloSecurisee;
+        this.siteWeb = siteWeb;
     }
 
     public String getAdresse() {
@@ -136,6 +138,14 @@ public class Parking {
 
     public void setStationnementVeloSecurisee(Boolean stationnementVeloSecurisee) {
         this.stationnementVeloSecurisee = stationnementVeloSecurisee;
+    }
+
+    public String getSiteWeb(){
+        return this.siteWeb;
+    }
+
+    public void setSiteWeb(String siteWeb){
+        this.siteWeb = siteWeb;
     }
 
 }

@@ -1,28 +1,14 @@
 package fr.eni.carsharingaire;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.Rect;
-import android.net.Uri;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import org.osmdroid.api.IMapController;
-import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
@@ -33,6 +19,7 @@ import org.osmdroid.views.overlay.OverlayItem;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.eni.carsharingaire.pojo.Parking;
 import fr.eni.carsharingaire.pojo.Records;
 
 
@@ -40,13 +27,13 @@ public class MapFragment extends Fragment {
     private static final String TAG = ListFragment.class.getSimpleName();
 
     MapView mp = null;
-    static private List<Records> list = null;
+    static private List<Parking> list = null;
 
     public MapFragment() {
         // Required empty public constructor
     }
 
-    public static MapFragment newInstance(List<Records> parkings) {
+    public static MapFragment newInstance(List<Parking> parkings) {
         list = parkings;
         MapFragment fragment = new MapFragment();
         Bundle args = new Bundle();
@@ -78,8 +65,11 @@ public class MapFragment extends Fragment {
         mp.setScrollableAreaLimitLatitude(85,-85,0 );
 
         List<OverlayItem> overlayItems = new ArrayList<OverlayItem>();
-        for (Records record:list) {
-            overlayItems.add(new OverlayItem(record.getFields().getNom_complet(), record.getFields().getCapacite_voiture(), new GeoPoint(Double.parseDouble((record.getGeometry().getCoordinates())[1]), Double.parseDouble((record.getGeometry().getCoordinates())[0]))));
+        for (Parking parking:list) {
+            OverlayItem over = new OverlayItem(parking.getNom(), String.valueOf(parking.getCapaciteVoiture()), new GeoPoint(parking.getLatitude(), parking.getLongitude()));
+            Drawable marker = getResources().getDrawable(R.drawable.ic_place_black_24dp);
+            over.setMarker(marker);
+            overlayItems.add(over);
         }
         ItemizedOverlayWithFocus<OverlayItem> mOverlay = new ItemizedOverlayWithFocus<OverlayItem>(view.getContext(),overlayItems,
                 new ItemizedIconOverlay.OnItemGestureListener()
