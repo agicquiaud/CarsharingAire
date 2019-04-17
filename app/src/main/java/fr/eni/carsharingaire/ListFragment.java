@@ -23,6 +23,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.eni.carsharingaire.pojo.Parking;
 import fr.eni.carsharingaire.pojo.Records;
 
 
@@ -31,16 +32,16 @@ public class ListFragment extends Fragment {
     private static final String TAG = ListFragment.class.getSimpleName();
 
     private RecyclerView recyclerView;
-    private List<Records> recordsList;
+    private List<Parking> parkingsList;
     private ListAdapter mAdapter;
-    static private List<Records> list = null;
+    static private List<Parking> list = null;
     static private ActionBar toolbar;
 
     public ListFragment() {
         // Required empty public constructor
     }
 
-    public static ListFragment newInstance(List<Records> parkings) {
+    public static ListFragment newInstance(List<Parking> parkings) {
         list = parkings;
         ListFragment fragment = new ListFragment();
         Bundle args = new Bundle();
@@ -62,8 +63,8 @@ public class ListFragment extends Fragment {
         toolbar = ((AppCompatActivity)getActivity()).getSupportActionBar();
 
         recyclerView = view.findViewById(R.id.recycler_view);
-        recordsList = new ArrayList<>();
-        mAdapter = new ListAdapter(getActivity(), recordsList);
+        parkingsList = new ArrayList<>();
+        mAdapter = new ListAdapter(getActivity(), parkingsList);
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);
@@ -87,8 +88,8 @@ public class ListFragment extends Fragment {
     private void fetchStoreItems() {
         //List<Records> items = new ArrayList<Records>();
 
-        recordsList.clear();
-        recordsList.addAll(list);
+        parkingsList.clear();
+        parkingsList.addAll(list);
 
         // refreshing recycler view
         mAdapter.notifyDataSetChanged();
@@ -98,7 +99,7 @@ public class ListFragment extends Fragment {
 
     class ListAdapter extends RecyclerView.Adapter<ListAdapter.MyViewHolder> {
         private Context context;
-        private List<Records> recordsList;
+        private List<Parking> parkingsList;
 
         public class MyViewHolder extends RecyclerView.ViewHolder {
             public TextView name;
@@ -123,9 +124,9 @@ public class ListFragment extends Fragment {
         }
 
 
-        public ListAdapter(Context context, List<Records> recordsList) {
+        public ListAdapter(Context context, List<Parking> parkingsList) {
             this.context = context;
-            this.recordsList = recordsList;
+            this.parkingsList = parkingsList;
         }
 
         @Override
@@ -138,16 +139,16 @@ public class ListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(MyViewHolder holder, final int position) {
-            final Records record = recordsList.get(position);
-            holder.name.setText(record.getFields().getNom_complet());
-            holder.address.setText(record.getFields().getAdresse()+' '+record.getFields().getCode_postal()+' '+record.getFields().getCommune());
-            holder.description.setText(record.getFields().getPresentation());
-            holder.site.setText(record.getFields().getSite_web());
+            final Parking parking = parkingsList.get(position);
+            holder.name.setText(parking.getNom());
+            holder.address.setText(parking.getAdresse()+' '+parking.getCodePostale()+' '+parking.getCommune());
+            holder.description.setText(parking.getPresentation());
+            holder.site.setText(parking.getSiteWeb());
         }
 
         @Override
         public int getItemCount() {
-            return recordsList.size();
+            return parkingsList.size();
         }
     }
 
