@@ -28,8 +28,7 @@ public class MapFragment extends Fragment {
 
     MapView mp = null;
     static private List<Parking> list = null;
-    static private String center_latitude = null;
-    static private String center_longitude = null;
+    static private Parking center = null;
 
     public MapFragment() {
         // Required empty public constructor
@@ -43,8 +42,9 @@ public class MapFragment extends Fragment {
         return fragment;
     }
 
-    public static MapFragment newInstance(List<Parking> parkings, String latitude, String longitude) {
+    public static MapFragment newInstance(List<Parking> parkings, Parking parking) {
         list = parkings;
+        center = parking;
         MapFragment fragment = new MapFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
@@ -68,7 +68,12 @@ public class MapFragment extends Fragment {
 
         IMapController mapController = mp.getController();
         mapController.setZoom(17);
-        GeoPoint startPoint = new GeoPoint(47.2172500, -1.5533600);
+        GeoPoint startPoint = null;
+        if(center == null){
+            startPoint = new GeoPoint(47.2172500, -1.5533600);
+        } else {
+            startPoint = new GeoPoint(center.getLatitude(), center.getLongitude());
+        }
         mapController.setCenter(startPoint);
         mp.setVerticalMapRepetitionEnabled(false);
         mp.setMinZoomLevel(3.0);

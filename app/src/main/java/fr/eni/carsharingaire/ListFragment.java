@@ -117,7 +117,9 @@ public class ListFragment extends Fragment {
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override public void onClick(View v) {
                         toolbar.setTitle("Carte");
-                        loadFragment(MapFragment.newInstance(list));
+                        int pos = getAdapterPosition();
+                        Parking parking = parkingsList.get(pos);
+                        loadFragment(MapFragment.newInstance(parkingsList, parking));
                     }
                 });
             }
