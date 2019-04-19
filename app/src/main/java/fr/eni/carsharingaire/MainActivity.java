@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -17,6 +18,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -37,7 +39,7 @@ import java.util.List;
 import fr.eni.carsharingaire.pojo.Parking;
 import fr.eni.carsharingaire.pojo.Records;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MapFragment.OnItineraireClickListener {
    //MapView mp = null;
     List<Parking> parkings = null;
     private ActionBar toolbar;
@@ -86,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 case R.id.navigation_map:
                     toolbar.setTitle("Carte");
-                    loadFragment(MapFragment.newInstance(parkings));
+                    loadFragment(MapFragment.newInstance(parkings,MainActivity.this));
                     return true;
             }
             return false;
@@ -164,7 +166,25 @@ public class MainActivity extends AppCompatActivity {
         {
             // load the store fragment by default
             toolbar.setTitle("Carte");
-            loadFragment(MapFragment.newInstance(parkings));
+            loadFragment(MapFragment.newInstance(parkings,MainActivity.this));
         }
+    }
+
+    @Override
+    public void onItineraireClick(final Uri uri) {
+        findViewById(R.id.floatingActionButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = null;
+                if(uri.toString().contains("maps")){
+                    intent = new Intent(Intent.ACTION_VIEW, uri);
+                }else if(uri.toString().contains("waze")){
+                    intent = new Intent(Intent.ACTION_VIEW, uri);
+                }else{
+                    intent = new Intent(Intent.ACTION_VIEW, uri);
+                }
+                startActivity(intent);
+            }
+        });
     }
 }

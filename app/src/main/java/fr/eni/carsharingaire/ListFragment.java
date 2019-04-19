@@ -73,7 +73,7 @@ public class ListFragment extends Fragment {
             @Override
             public void onAireClicked(List<Parking> listParking, Parking park) {
                 ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Carte");
-                loadFragment(MapFragment.newInstance(parkingsList, park));
+                loadFragment(MapFragment.newInstance(parkingsList, park,null));
 
             }
         });

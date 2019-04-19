@@ -1,8 +1,8 @@
 package fr.eni.carsharingaire;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,13 +16,13 @@ import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import fr.eni.carsharingaire.pojo.Parking;
 
 
 public class MapFragment extends Fragment {
     private static final String TAG = ListFragment.class.getSimpleName();
+    private static OnItineraireClickListener listener;
 
     MapView mp = null;
     static private List<Parking> list = null;
@@ -32,17 +32,20 @@ public class MapFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static MapFragment newInstance(List<Parking> parkings) {
+    public static MapFragment newInstance(List<Parking> parkings, OnItineraireClickListener listener) {
         list = parkings;
+        MapFragment.listener = listener;
+
         MapFragment fragment = new MapFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
     }
 
-    public static MapFragment newInstance(List<Parking> parkings, Parking parking) {
+    public static MapFragment newInstance(List<Parking> parkings, Parking parking , OnItineraireClickListener listener) {
         list = parkings;
         center = parking;
+        MapFragment.listener = listener;
         MapFragment fragment = new MapFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
@@ -55,11 +58,11 @@ public class MapFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_map, container, false);
+        final View view = inflater.inflate(R.layout.fragment_map, container, false);
 
         mp = view.findViewById(R.id.mapView);
         mp.setTileSource(TileSourceFactory.MAPNIK);
@@ -78,7 +81,7 @@ public class MapFragment extends Fragment {
         mp.setScrollableAreaLimitLatitude(85,-85,0 );
 
         final List<Marker> overlayItems = new ArrayList<Marker>();
-        for (Parking parking:list) {
+        for (final Parking parking:list) {
 
             Marker marker1 = new Marker(mp);
             marker1.setPosition(new GeoPoint(parking.getLatitude(), parking.getLongitude()));
@@ -86,9 +89,15 @@ public class MapFragment extends Fragment {
             marker1.setTitle(parking.getNom());
             marker1.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
                 @Override
-                public boolean onMarkerClick(Marker marker, MapView mapView) {
+                public boolean onMarkerClick(final Marker marker, MapView mapView) {
                     hideMarker(overlayItems);
                     marker.setVisible(true);
+                    MarkerInfoWindow markerInfoWindow = new MarkerInfoWindow(R.layout.bonuspack_bubble,mp);
+                    String address = parking.getAdresse().concat(" ").concat(", ").concat(parking.getCommune());
+                    address = address.replace(' ', '+');
+                    Uri uri = Uri.parse("google.navigation:q=".concat(address));
+                    if (listener != null)
+                        listener.onItineraireClick(uri);
                     marker.setInfoWindow(new MarkerInfoWindow(R.layout.bonuspack_bubble,mp));
                     marker.showInfoWindow();
                     return false;
@@ -147,6 +156,10 @@ public class MapFragment extends Fragment {
         for (Marker marker:listMarker) {
             marker.getInfoWindow().close();
         }
+    }
+
+    public interface OnItineraireClickListener{
+        void onItineraireClick(Uri uri);
     }
 
 
